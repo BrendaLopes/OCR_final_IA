@@ -213,3 +213,13 @@ data/processed/
 .DS_Store
 .vscode/
 
+outputs/*
+!outputs/.gitkeep
+
+data/raw/*
+!data/raw/.gitkeep
+
+data/processed/*
+!data/processed/.gitkeep
+
+
