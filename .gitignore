@@ -206,20 +206,17 @@ marimo/_static/
 marimo/_lsp/
 __marimo__/
 
-# Project-specific
-outputs/
-data/raw/
-data/processed/
+# ---- Project specific ----
 .DS_Store
 .vscode/
 
-outputs/*
-!outputs/.gitkeep
+# Do not version datasets or generated outputs
+data/raw/
+data/processed/
+outputs/
 
-data/raw/*
+# Keep folder structure placeholders
 !data/raw/.gitkeep
-
-data/processed/*
 !data/processed/.gitkeep
-
+!outputs/.gitkeep
 
