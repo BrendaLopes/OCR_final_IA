@@ -210,13 +210,12 @@ __marimo__/
 .DS_Store
 .vscode/
 
-# Do not version datasets or generated outputs
-data/raw/
-data/processed/
-outputs/
-
-# Keep folder structure placeholders
-!data/raw/.gitkeep
-!data/processed/.gitkeep
+# Ignore all generated outputs + raw/processed datasets (but keep placeholders)
+outputs/*
 !outputs/.gitkeep
 
+data/raw/*
+!data/raw/.gitkeep
+
+data/processed/*
+!data/processed/.gitkeep
