@@ -1,3 +1,4 @@
+##reports/logbook.md
 
 ## 2026-01-07 — MVP manuscrito (A–Z + 0–9)
 
@@ -48,3 +49,56 @@ Aumentación (solo train):
   1) errores por mala calidad de imagen procesada
   2) confusiones típicas entre clases similares
   3) criterios para filtrar/ajustar el preprocesado en `make_handwritten_dataset.py`.
+
+  [2026-01-08] Experimento AZ09 v1
+
+Objetivo: MVP de reconocimiento manuscrito limitado a A–Z + 0–9 (36 clases).
+
+Dataset: data/processed/handwritten_AZ09, 1364 imágenes, 36 clases.
+
+Modelo: CNN simple 3 bloques conv + FC (SimpleCNN).
+
+Entrenamiento: 20 epochs, batch 64, Adam lr=1e-3, augment suave (rotación ±10°, traslación ±2px, erode/dilate).
+
+Resultado: best val acc = 0.7766, train acc final ~0.88.
+
+Diagnóstico (QA): muchos hard examples muestran fallo de preprocesado (recortes negros/barras/manchas), causando predicciones muy confiadas erróneas.
+
+Decisión: mejorar normalización (umbral robusto + connected components + QC) y reconstruir dataset limpio.
+
+[2026-01-08] QA y análisis de errores
+
+Herramienta: scripts/qa_hard_examples.py --only-wrong --k 30 --open
+
+Observación: aparecen imágenes normalizadas casi negras (posible sombra/fondo capturado).
+
+Pares confusos detectados: 0/O, Q/O, N/M, V/W, 6/U/G, 1/I.
+
+Acción siguiente: patch en make_handwritten_dataset.py para seleccionar componente conectado del carácter y filtrar outliers.
+
+[2026-01-08] Mejora de preprocesado (dataset manuscrito)
+
+Problema detectado: muchas imágenes normalizadas salen como bloques negros/barras → el recorte capturaba sombra/borde como “tinta”.
+
+Cambio aplicado en make_handwritten_dataset.py:
+
+binarizado robusto (Otsu en dos polaridades, elección por ratio de tinta),
+
+selección de componente conectado “más probable” (descarta fondo gigante),
+
+control de calidad (descarta outliers de tinta/bbox).
+
+Objetivo: asegurar que cada muestra 32×32 contenga realmente el carácter, reduciendo ruido y mejorando la precisión del clasificador.
+
+Fecha/Hora: 08/01 17:20
+
+Prueba: Reconstrucción del dataset manuscrito con nuevo preprocesado (binarizado + recorte por componente + padding a cuadrado + resize 32×32 + guardado de rechazados).
+
+Comando: python3 scripts/make_handwritten_dataset.py --input ... --output ... --copy-originals --save-rejected
+
+Resultado esperado: eliminación de recortes defectuosos (“barras negras”), y dataset normalizado estable.
+
+Siguiente acción: revisión visual (contact sheet) + reentrenamiento CNN
+
+
+“Tras aplicar una etapa de control de calidad (QC) con --reject-on-qc, se eliminaron 90 muestras corruptas del conjunto original. El modelo CNN alcanzó un 69.9 % de precisión en validación con 62 clases (dígitos, mayúsculas y minúsculas). Las confusiones más frecuentes corresponden a caracteres visualmente similares (p.ej. 1/I/l, O/0, Z/2). El resultado cumple los requisitos del proyecto y demuestra una generalización adecuada con un dataset limitado.”

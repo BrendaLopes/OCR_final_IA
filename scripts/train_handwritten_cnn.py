@@ -1,3 +1,4 @@
+##scripts/train_handwritten_cnn.py
 #!/usr/bin/env python3
 """
 Train a simple CNN from scratch to classify handwritten characters (62 classes).
